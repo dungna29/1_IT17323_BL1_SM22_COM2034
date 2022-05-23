@@ -210,3 +210,165 @@ SELECT
 	RIGHT(Ten,LEN(Ten) - CHARINDEX(' ',Ten)) AS N'Tên'
 FROM @TB_SV
 -- Tách nốt tên và tên đệm ra thành 2 thành phần riêng biệt.
+-- Cách 2:
+DECLARE @TB_SV TABLE(Ten NVARCHAR(50))
+INSERT INTO @TB_SV
+VALUES(N'Nguyễn Ngọc Anh'),(N'Phan Xuân Đỉnh')
+SELECT 
+	Ten,
+	PARSENAME(REPLACE(Ten,' ','.'),3) AS N'Họ',
+	PARSENAME(REPLACE(Ten,' ','.'),2) AS N'Đệm',
+	PARSENAME(REPLACE(Ten,' ','.'),1) AS N'Tên'
+FROM @TB_SV
+-- Cách 3:
+DECLARE @TB_SV TABLE(Ten NVARCHAR(50))
+INSERT INTO @TB_SV
+VALUES(N'Nguyễn Xuân Anh'),(N'Phan Xuân Đỉnh')
+SELECT 
+	LEN(Ten) AS N'Độ dài tên',
+	CHARINDEX(' ',Ten) AS 'CHARINDEX',
+	LEFT(Ten,CHARINDEX(' ',Ten)-1) AS N'Họ',
+	RTRIM(LTRIM(REPLACE(REPLACE(Ten,SUBSTRING(Ten , 1, CHARINDEX(' ', Ten) - 1),''),REVERSE( LEFT( REVERSE(Ten), CHARINDEX(' ', REVERSE(Ten))-1 ) ),'')))as N'TÊN ĐỆM',
+	RIGHT(Ten,CHARINDEX(' ',Ten)) AS N'Tên'
+FROM @TB_SV
+-- Buổi sau xem lại
+
+ -- 2.3 Charindex Trả về vị trí được tìm thấy của một chuỗi trong chuỗi chỉ định, 
+-- ngoài ra có thể kiểm tra từ vị trí mong  muốn
+-- CHARINDEX ( string1, string2 ,[  start_location ] ) = 1 số nguyên
+SELECT CHARINDEX('POLY','FPT POLYTECHNIC')-- = 5
+SELECT CHARINDEX('POLY','FPT POLYTECHNIC',6)-- = 0 Không tìm thầy
+
+-- 2.4 Substring Cắt chuỗi bắt đầu từ vị trí và độ dài muốn lấy 
+-- SUBSTRING(string,start,length)
+SELECT SUBSTRING('FPT POLYTECHNIC',5,LEN('FPT POLYTECHNIC'))
+SELECT SUBSTRING('FPT POLYTECHNIC',CHARINDEX(' ','FPT POLYTECHNIC') +1,LEN('FPT POLYTECHNIC'))
+SELECT SUBSTRING('FPT POLYTECHNIC',5,8)-- 8 Được tính từ vị trí index 5
+
+-- 2.5 Replace Hàm thay thế chuỗi theo giá trị cần thay thế và cần thay thế
+-- REPLACE(search,find,replace)
+SELECT REPLACE('0912-345-678','-',' ')
+
+/* 2.6 
+REVERSE(string) Đảo ngược chuỗi truyền vào
+LOWER(string)	Biến tất cả chuỗi truyền vào thành chữ thường
+UPPER(string)	Biến tất cả chuỗi truyền vào thành chữ hoa
+SPACE(integer)	Đếm số lượng khoảng trắng trong chuỗi. 
+*/
+SELECT REVERSE('SQL')
+SELECT LOWER('SQL')
+SELECT 'SQ' + '  ' + 'L'
+SELECT 'SQ' + SPACE(20) + 'L'
+
+-- 2.7 Các hàm ngày tháng năm
+SELECT GETDATE()
+SELECT CONVERT(DATE,GETDATE())
+SELECT CONVERT(TIME,GETDATE())
+SELECT YEAR(GETDATE()) AS N'NĂM',
+		MONTH(GETDATE()) AS N'THÁNG',
+		DAY(GETDATE()) AS N'NGÀY'
+
+-- DATENAME: truy cập tới các thành phần liên quan ngày tháng
+SELECT 
+	DATENAME(YEAR,GETDATE()) AS 'YEAR',
+	DATENAME(MONTH,GETDATE()) AS 'MONTH',
+	DATENAME(DAY,GETDATE()) AS 'DAY',
+	DATENAME(WEEK,GETDATE()) AS 'WEEK',
+	DATENAME(DAYOFYEAR,GETDATE()) AS 'DAYOFYEAR',
+	DATENAME(WEEKDAY,GETDATE()) AS 'WEEKDAY'
+-- Truyền ngày sinh bản thân
+DECLARE @NgaySInh DATE
+SET @NgaySInh = '1990-07-27'
+SELECT 
+	DATENAME(YEAR,@NgaySInh) AS 'YEAR',
+	DATENAME(MONTH,@NgaySInh) AS 'MONTH',
+	DATENAME(DAY,@NgaySInh) AS 'DAY',
+	DATENAME(WEEK,@NgaySInh) AS 'WEEK',
+	DATENAME(DAYOFYEAR,@NgaySInh) AS 'DAYOFYEAR',
+	DATENAME(WEEKDAY,@NgaySInh) AS 'WEEKDAY'
+
+-- 2.8 Câu điều kiện IF ELSE trong SQL
+/* Lệnh if sẽ kiểm tra một biểu thức có đúng  hay không, nếu đúng thì thực thi nội dung bên trong của IF, nếu sai thì bỏ qua.
+IF BIỂU THỨC   
+BEGIN
+    { statement_block }
+END		  */
+IF 1=1
+BEGIN
+	PRINT N'Đúng'
+END
+ELSE
+BEGIN	
+	PRINT N'SAI'
+END
+
+IF 1=1
+	PRINT N'Đúng'
+ELSE	
+	PRINT N'SAI'
+
+-- Viết 1 chương trình truyền điểm thi COM2034 đánh giá qua môn hoặc học lại
+DECLARE @DiemThi_COM2034 FLOAT
+SET @DiemThi_COM2034 = 4.9
+IF @DiemThi_COM2034 >= 5
+BEGIN
+	PRINT N'Chúc mừng bạn đã qua môn'
+END
+ELSE
+BEGIN
+	PRINT N'Chúc mừng bạn đã mất 659K'
+END
+
+/* 2.9 IF EXISTS
+IF EXISTS (CaulenhSELECT)
+Cau_lenhl | Khoi_lenhl
+[ELSE
+Cau_lenh2 | Khoi_lenh2] 
+*/
+-- Kiểm tra xem trong bảng Chi tiết sản phẩm có sản phẩm nào tồn lớn hơn 900?
+IF EXISTS(
+	SELECT * FROM ChiTietSP 
+	WHERE SoLuongTon > 900)
+
+	BEGIN
+		PRINT N'CÓ DANH SÁCH SẢN PHẨM TỒN LỚN HƠN 900'
+		SELECT * FROM ChiTietSP 
+		WHERE SoLuongTon > 900
+	END
+ELSE
+	BEGIN
+		PRINT N'KHÔNG CÓ DANH SÁCH SẢN PHẨM TỒN LỚN HƠN 900'
+	END
+
+/*
+ 3.0 Hàm IIF () trả về một giá trị nếu một điều kiện là TRUE hoặc một giá trị khác nếu một điều kiện là FALSE.
+IIF(condition, value_if_true, value_if_false)
+*/
+SELECT IIF(900>1000,N'ĐÚNG',N'SAI')
+
+SELECT Ma,Ten,GioiTinh,
+	IIF(IdCH = 1,N'Cửa Hàng 1',IIF(IdCH = 2,N'Cửa Hàng 2',N'Không xác định'))
+FROM NhanVien
+
+/*
+3.1 Câu lệnh CASE đi qua các điều kiện và trả về một giá trị khi điều kiện đầu tiên được đáp ứng (như câu lệnh IF-THEN-ELSE). 
+Vì vậy, một khi một điều kiện là đúng, nó sẽ ngừng đọc và trả về kết quả. 
+Nếu không có điều kiện nào đúng, nó sẽ trả về giá trị trong mệnh đề ELSE.
+Nếu không có phần ELSE và không có điều kiện nào đúng, nó sẽ trả về NULL.
+CASE
+    WHEN condition1 THEN result1
+    WHEN condition2 THEN result2
+    WHEN conditionN THEN resultN
+    ELSE result
+END;
+*/
+-- MR MS MRS
+SELECT Ma,Ten =
+	(CASE GioiTinh
+	WHEN 'Nam' THEN 'Mr. '+Ten
+	WHEN N'Nữ' THEN 'Mrs. '+Ten
+	ELSE 'Không xác định '+Ten
+	END),
+	GioiTinh
+FROM NhanVien
+
