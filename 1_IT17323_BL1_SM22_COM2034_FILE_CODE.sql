@@ -372,3 +372,8 @@ SELECT Ma,Ten =
 	GioiTinh
 FROM NhanVien
 
+/*Vòng lặp WHILE (WHILE LOOP) được sử dụng nếu bạn muốn 
+chạy lặp đi lặp lại một đoạn mã khi điều kiện cho trước trả về giá trị là TRUE.*/
+
+
+
