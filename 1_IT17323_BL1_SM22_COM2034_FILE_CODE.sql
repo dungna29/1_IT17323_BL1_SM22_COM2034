@@ -374,6 +374,146 @@ FROM NhanVien
 
 /*Vòng lặp WHILE (WHILE LOOP) được sử dụng nếu bạn muốn 
 chạy lặp đi lặp lại một đoạn mã khi điều kiện cho trước trả về giá trị là TRUE.*/
+DECLARE @DEM INT = 0
+WHILE @DEM < 5
+BEGIN
+	PRINT N'LẦN THỨ' + CONVERT(VARCHAR,@DEM)
+	PRINT N'MUỐN HỌC LẠI COM2034 THÌ PHẢI...'
+	SET @DEM = @DEM + 1
+END
 
+/*Lệnh Break (Ngắt vòng lặp)*/
+/* Lệnh Continue: Thực hiện bước lặp tiếp theo bỏ qua các lệnh trong */
+DECLARE @DEM INT = 0
+WHILE @DEM < 10
+BEGIN
+	IF @DEM < 5
+		BEGIN
+			SET @DEM += 1
+			CONTINUE
+		END
+	PRINT N'LẦN THỨ' + CONVERT(VARCHAR,@DEM)
+	PRINT N'MUỐN HỌC LẠI COM2034 THÌ PHẢI...'
+	SET @DEM = @DEM + 1
+END
 
+/* 3.2 Try...Catch 
+SQLServer Transact-SQL cung cấp cơ chế kiểm soát lỗi bằng TRY … CATCH
+như trong các ngôn ngữ lập trình phổ dụng hiện nay (Java, C, PHP, C#).
+Một số hàm ERROR thường dùng
+_
+ERROR_NUMBER() : Trả về mã số của lỗi dưới dạng số
+ERROR_MESSAGE() Trả lại thông báo lỗi dưới hình thức văn bản 
+ERROR_SEVERITY() Trả lại mức độ nghiêm trọng của lỗi kiểu int
+ERROR_STATE() Trả lại trạng thái của lỗi dưới dạng số
+ERROR_LINE() : Trả lại vị trí dòng lệnh đã phát sinh ra lỗi
+ERROR_PROCEDURE() Trả về tên thủ tục/Trigger gây ra lỗi
+*/
+BEGIN TRY
+	SELECT 1 + '1a'
+END TRY
+BEGIN CATCH
+	SELECT
+	ERROR_NUMBER() AS N'Trả về mã số của lỗi dưới dạng số',
+	ERROR_MESSAGE() AS N'Trả lại thông báo lỗi dưới hình thức văn bản'
+END CATCH
+--
+BEGIN TRY
+	SELECT 1 + '1a'
+END TRY
+BEGIN CATCH
+	PRINT N'Thông báo: ' + CONVERT(VARCHAR(MAX),ERROR_NUMBER())
+	PRINT N'Thông báo: ' + ERROR_MESSAGE()
+END CATCH
+/* 3.3 RAISERROR*/
+BEGIN TRY
+	INSERT INTO MauSac VALUES('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','b')
+END TRY
+BEGIN CATCH
+	DECLARE @erERROR_MESSAGE VARCHAR(MAX), @erERROR_SEVERITY INT, @erERROR_STATE INT
+	SELECT 
+		@erERROR_MESSAGE = ERROR_MESSAGE(),
+		@erERROR_SEVERITY = ERROR_SEVERITY(),
+		@erERROR_STATE = ERROR_STATE()
+	RAISERROR(@erERROR_MESSAGE,@erERROR_SEVERITY,@erERROR_STATE)
+END CATCH
 
+-- 3.4 Ý nghĩa của Replicate
+DECLARE @ten1234 NVARCHAR(50)
+SET @ten1234 = REPLICATE(N'Á',5)--Lặp lại số lần với String truyền vào
+PRINT @ten1234
+
+/* TỔNG KẾT STORE PROCEDURE :
+ -- Là lưu trữ một tập hợp các câu lệnh đi kèm trong CSDL cho phép tái sử dụng khi cần
+ -- Hỗ trợ các ứng dụng tương tác nhanh và chính xác
+ -- Cho phép thực thi nhanh hơn cách viết từng câu lệnh SQL
+ -- Stored procedure có thể làm giảm bớt vấn đề kẹt đường truyền mạng, dữ liệu được gởi theo gói.
+ -- Stored procedure có thể sử dụng trong vấn đề bảo mật, phân quyền
+ -- Có 2 loại Store Procedure chính: System stored	procedures và User stored procedures   
+ 
+ -- Cấu trúc của Store Procedure bao hồm:
+	➢Inputs: nhận các tham số đầu vào khi cần
+	➢Execution: kết hợp giữa các yêu cầu nghiệp vụ với các lệnh
+	lập trình như IF..ELSE, WHILE...
+	➢Outputs: trả ra các đơn giá trị (số, chuỗi…) hoặc một tập kết quả.
+ 
+ --Cú pháp:
+ CREATE hoặc ALTER(Để cập nhật nếu đã tồn tại tên SP) PROC <Tên STORE PROCEDURE> <Tham số truyền vào nếu có>
+ AS
+ BEGIN
+  <BODY CODE>
+ END
+ ĐỂ GỌI SP dùng EXEC hoặc EXECUTE
+SPs chia làm 2 loại:
+System stored procedures: Thủ tục mà những người sử dụng chỉ có quyền thực hiện, không được phép thay đổi.	
+User stored procedures: Thủ tục do người sử dụng tạo và thực hiện.
+ -- SYSTEM STORED PROCEDURES
+ Là những stored procedure chứa trong Master Database, thường bắt đầu bằng tiếp đầu ngữ	 sp_
+ Chủ yếu dùng trong việc quản lý cơ sở dữ liệu(administration) và bảo mật (security).
+❑Ví dụ: sp_helptext <tên của đối tượng> : để lấy định nghĩa của đối tượng (thông số tên đối
+tượng truyền vào) trong Database
+ */
+ GO
+ ALTER PROCEDURE SP_DsNVNam -- CREATE là tạo mới , ALTER, DROP
+ AS
+ SELECT * FROM NhanVien WHERE GioiTinh = N'NỮ'
+
+ GO
+ CREATE PROC SP_DSNhanVien
+ AS
+ SELECT * FROM NhanVien WHERE Ten LIKE 'T%' AND TrangThai = 1
+
+ -- Muốn thực thi Proc sử dụng câu lệnh EXCUTE đến store đã đặt tên.
+ EXECUTE SP_DsNVNam
+ EXEC SP_DsNVNam
+
+ -- TRIỂN KHAI STORE PROC NÂNG CAO - GIÚP QUA MÔN, HỌC JAVA3, DỰN ÁN 1 hoặc DỰ ÁN TỐT NGHIỆP
+
+GO
+CREATE PROC SP_CRUD_TB_MAUSAC
+		(@Id INT,@Ma VARCHAR(20),
+		@Ten NVARCHAR(30),@SQLTYPE VARCHAR(20))
+AS
+BEGIN
+	IF @SQLTYPE = 'SELECT'
+	BEGIN
+		SELECT * FROM MauSac
+	END
+	IF @SQLTYPE = 'INSERT'
+	BEGIN
+		INSERT INTO MAUSAC VALUES(@Ma,@Ten)
+	END
+	IF @SQLTYPE = 'UPDATE'
+	BEGIN
+		UPDATE MauSac SET Ten = @Ten WHERE Id = @Id
+	END
+		IF @SQLTYPE = 'DELETE'
+	BEGIN
+		DELETE MauSac WHERE Id = @Id
+	END
+END 
+
+EXEC SP_CRUD_TB_MAUSAC @ID = 0,@Ma = '',@Ten = '',@SQLTYPE = 'SELECT'
+EXEC SP_CRUD_TB_MAUSAC @ID = 0,@Ma = NULL,@Ten = 'D',@SQLTYPE = 'INSERT'
+
+-- Bài Tập Viết STORE PROC CRUD BẢNG NHÂN VIÊN Không truyền khóa phụ mà là truyền mã MÃ CỬA HÀNG, MÃ CHỨC VỤ. CÒN CÁC THAM SỐ HỢP LÝ.
