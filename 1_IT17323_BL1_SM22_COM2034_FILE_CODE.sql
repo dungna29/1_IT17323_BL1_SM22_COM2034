@@ -889,4 +889,4 @@ của đại lý sấp xếp giảm dần theo Số lượng đã bán:
 [Mã Sản Phẩm] [Tên Sản Phẩm] [Mã Dòng Sản phẩm] [Tên Dòng Sản phẩm] [Số Lượng Tồn Kho] [Số Lượng Đã Bán]
  [Số tiền lãi] 
 */
-
+-- Tải lý thuyết về và làm thử các ví dụ rồi triển khai ass2
